@@ -1,0 +1,1196 @@
+{
+  "name": "LinkedIn Comments to Leads Extractor",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "025ab8f2-7db3-48ee-a048-29104352682f",
+      "name": "Trigger manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -5376,
+        -720
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "formTitle": "Linkedin Posts Comments Leads Scraper",
+        "formDescription": "=<div style=\"font-family: Arial, sans-serif; line-height: 1.8; color: #333; word-wrap: break-word; overflow-wrap: break-word;\">\n\n<p style=\"margin-bottom: 20px;\"><strong style=\"color: #0077b5;\">🔸 Step 1: Add Posts URLs</strong></p>\n<p style=\"margin-bottom: 20px;\">The workflow accepts various LinkedIn post identifier formats:</p>\n\n<p style=\"margin-bottom: 18px;\"><strong>📊 Numeric post IDs:</strong><br>\n<span style=\"font-family: monospace; background: #f5f5f5; padding: 4px 6px; word-break: break-all; margin-top: 8px; display: inline-block;\">7334385757769416704</span></p>\n\n<p style=\"margin-bottom: 18px;\"><strong>🔗 Activity URLs:</strong><br>\n<span style=\"font-family: monospace; background: #f5f5f5; padding: 4px 6px; word-break: break-all; display: block; margin-top: 8px;\">https://www.linkedin.com/feed/update/urn:li:activity:273437/</span></p>\n\n<p style=\"margin-bottom: 25px;\"><strong>🌐 Full post URLs:</strong><br>\n<span style=\"font-family: monospace; background: #f5f5f5; padding: 4px 6px; word-break: break-all; display: block; margin-top: 8px;\">https://www.linkedin.com/posts/username_title-activity-7334385757769416704-dMnz</span></p>\n\n<hr style=\"margin: 30px 0; border: 1px solid #ddd;\">-------------------\n\n<p style=\"margin-bottom: 20px;\"><strong style=\"color: #28a745;\">✅ Step 2: Results</strong></p>\n<p style=\"margin-bottom: 20px;\">Once finished, you'll be redirected to Google Sheets where you can find your result with the name:</p>\n<p style=\"background: #f0f8ff; padding: 15px; border-left: 4px solid #0077b5; margin: 20px 0;\">\n<strong>\"LinkedIn-Posts-Comments-Leads-{{ $now.format('yyyy-MM-dd') }}\"</strong>\n</p>\n\n<hr style=\"margin: 30px 0; border: 1px solid #ddd;\">-------------------\n\n\n<p style=\"color: #666; font-size: 14px; margin-top: 25px;\"><em>💡 Tip: Make sure your LinkedIn URLs are publicly accessible for the best results.</em></p>\n\n</div>",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Post IDs/URLs",
+              "fieldType": "textarea",
+              "placeholder": "e.g. 7334385757769416704, https://www.linkedin.com/feed/update/urn:li:activity:7334385757769416704/",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How many comments you want to scrape?",
+              "fieldType": "number",
+              "placeholder": "Default: 100"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Submit",
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "redirect",
+              "redirectUrl": "=https://docs.google.com/spreadsheets/u/0/"
+            }
+          },
+          "ignoreBots": true
+        }
+      },
+      "id": "2aac389d-b8f8-4f4e-b96d-d26ee683bdf8",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -5312,
+        -320
+      ],
+      "webhookId": "a81d04b5-169a-4368-b925-91fb0660b6b2",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "20febbcc-0a59-4a89-8932-9bbb34b0e9f9",
+              "name": "APIFY_TOKEN",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "291758a3-c73f-4db5-a2b3-5f88664a8b53",
+              "name": "limit",
+              "type": "number",
+              "value": "={{ $json.limit }}"
+            },
+            {
+              "id": "921b72d5-3688-4324-9d36-50668548344e",
+              "name": "postIds",
+              "type": "array",
+              "value": "={{ $json.postIds }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "d6c6e9d2-d0ef-4a8b-8b22-14678cf74f0c",
+      "name": "Set APIFY Token",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -4800,
+        -608
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "916bb8f7-34c5-4f2f-b13d-f60d228abc1f",
+              "name": "postIds",
+              "type": "array",
+              "value": "={{ $json['Post IDs/URLs'].replaceAll('\\n','').replaceAll('\\r', '').split(',').filter(item => $ifEmpty(item, false))  }}"
+            },
+            {
+              "id": "7ff3d2f4-ab8a-444f-9747-f95166a950bd",
+              "name": "limit",
+              "type": "number",
+              "value": "={{ $json['How many comments you want to scrape?'] || 100 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3e4c8dfd-fb4c-4a0b-a5e7-75d0cb872bff",
+      "name": "Set fields from the form",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -4992,
+        -320
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af09ad86-b3dd-45b7-b17d-cb810e4b48d6",
+              "name": "postIds",
+              "type": "array",
+              "value": "['https://www.linkedin.com/feed/update/urn:li:activity:7334385757769416704/', 'https://www.linkedin.com/feed/update/urn:li:activity:7318557377971023872/']"
+            },
+            {
+              "id": "b2f9412e-4c81-454f-ad84-a1d5f6547a26",
+              "name": "limit",
+              "type": "number",
+              "value": 100
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d5df45fd-aa4d-4fa9-9d64-70b5b6874c8e",
+      "name": "Set manual fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -5136,
+        -720
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.4,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "19224073-c84d-456f-b694-318df4223d2a",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.summary.totalComments }}",
+              "rightValue": 100
+            },
+            {
+              "id": "8156447e-75dd-4cad-8fc8-17366667d165",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Set APIFY Token').first().json.limit }}",
+              "rightValue": 100
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c002d26f-fcff-4415-8e13-2d844f898ca9",
+      "name": "More runs needed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -4000,
+        -608
+      ],
+      "notesInFlow": true,
+      "typeVersion": 2.2,
+      "notes": "Per run it's only 100 comments"
+    },
+    {
+      "parameters": {
+        "jsCode": "const limitPages = Math.ceil($('Set APIFY Token').first().json.limit / 100)\nconst totalComments = $('Run Apify Comments Scraper').last().json.summary.totalComments \nconst availablePages = Math.ceil(totalComments / 100)\n\nconst totalRuns = availablePages <= limitPages ? availablePages : limitPages\n\nlet currentPage = 2\n\n\nreturn {\n  json: {\n    items:\n      Array.from({ length: totalRuns }, (_, i) => {\n        return { currentPage: currentPage + i }\n      })\n  }\n};"
+      },
+      "id": "419a7256-b750-4c34-bbc8-88adc496c17e",
+      "name": "Set pagination",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -3776,
+        -752
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "id": "7646bf27-d7f3-4f2a-a4a0-a8153ce30b54",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -3552,
+        -752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "items",
+        "options": {}
+      },
+      "id": "7716e5bc-3522-4220-942d-f8c8971063e8",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -4208,
+        -608
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b4280f11-a50b-4065-8742-9f994c6ee84d",
+              "name": "items",
+              "type": "array",
+              "value": "={{ $json.items.concat($('Aggregate').item.json.items) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ad9072fa-6e6c-43ee-9c56-30921f2b59b1",
+      "name": "Gather All Comments",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2896,
+        -960
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.first().json.items;\n\n// Use reduce to filter unique profile_url values\nconst uniqueProfiles = items.reduce((acc, item) => {\n  // Check if this profile_url is already in the accumulator\n  console.log(item)\n  if (item.author && !acc.some(i => i.profile_url === item.author.profile_url)) {\n    acc.push(item.author);\n  }\n  return acc;\n}, []);\n\nreturn uniqueProfiles"
+      },
+      "id": "2366d6b2-d4ae-45ab-9724-fe2ecfcc6de5",
+      "name": "Create Unique List of Leads",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2432,
+        -592
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.apify.com/v2/acts/apimaestro~linkedin-post-comments-replies-engagements-scraper-no-cookies/run-sync-get-dataset-items?token=' +$json.APIFY_TOKEN}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "postIds",
+              "value": "={{ $json.postIds }}"
+            },
+            {
+              "name": "page_number",
+              "value": "={{ 1 }}"
+            },
+            {
+              "name": "sortOrder",
+              "value": "most recent"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $json.limit }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5dda792a-f05d-4baf-a008-ee7576dbfc89",
+      "name": "Run Apify Comments Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -4432,
+        -608
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.apify.com/v2/acts/apimaestro~linkedin-post-comments-replies-engagements-scraper-no-cookies/run-sync-get-dataset-items?token=' + $('Set APIFY Token').first().json.APIFY_TOKEN}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "postIds",
+              "value": "={{ $('Set APIFY Token').first().json.postIds }}"
+            },
+            {
+              "name": "page_number",
+              "value": "={{ $json.currentPage }}"
+            },
+            {
+              "name": "sortOrder",
+              "value": "most recent"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $('Set APIFY Token').first().json.limit }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "79e603aa-a478-420d-881a-05990f790e4a",
+      "name": "Run Apify Comments Scraper Loop",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3120,
+        -736
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.apify.com/v2/acts/apimaestro~linkedin-profile-batch-scraper-no-cookies-required/run-sync-get-dataset-items?token=' + $('Set APIFY Token').first().json.APIFY_TOKEN}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "usernames",
+              "value": "={{ $json.batches }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "83c89772-847b-4538-8eb7-97efc9781390",
+      "name": "Run Apify Profile Enrichment",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1392,
+        -576
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "batches",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "id": "620e9e29-61c4-46e7-be5e-1ca56d23587e",
+      "name": "Split Out Batches",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1968,
+        -592
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "589da149-2326-4b50-b064-067a7b704b87",
+      "name": "Loop Over Comments",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -3328,
+        -752
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9d4d4025-de8c-4165-b61b-f4ccd3e4cae1",
+      "name": "Loop Over Profiles",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1680,
+        -592
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "jsCode": "const uniqueProfiles = $input.all().map(item => item.json.profile_url)\n\n// Split the uniqueProfiles in batches of 500 for the Apify\nconst chunkSize = 500;\nconst batches = [];\n\nfor (let i = 0; i < uniqueProfiles.length; i += chunkSize) {\n  batches.push(uniqueProfiles.slice(i, i + chunkSize));\n}\n\n\nreturn { batches };"
+      },
+      "id": "177bd0e3-f6f3-446b-a263-f9dfc7dd3f75",
+      "name": "Split in batches",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2208,
+        -592
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "items",
+        "options": {}
+      },
+      "id": "595be651-6dda-47fd-a039-536ec3b88463",
+      "name": "Aggregate Comments",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -2832,
+        -736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "items",
+        "options": {}
+      },
+      "id": "2585fd3d-7ade-40d1-a5de-81bc132aaf0c",
+      "name": "Aggregate Profiles",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1168,
+        -576
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "items"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "980addf5-c540-448d-865f-60c7e2d7f05e",
+      "name": "Aggregate All Profiles",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1392,
+        -752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "items"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "e1f7b243-ac57-4ab1-8958-e8f471bac9b4",
+      "name": "Aggregate All Comments",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -3120,
+        -960
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {
+          "headerRow": true
+        }
+      },
+      "id": "eb63c6a5-1a58-4596-a30d-bf6f595e1182",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -512,
+        -928
+      ],
+      "executeOnce": true,
+      "typeVersion": 1.1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "function flatten(obj, prefix = '', res = {}) {\n  for (const key in obj) {\n    const value = obj[key];\n    const prefixedKey = prefix ? `${prefix}_${key}` : key;\n    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {\n      flatten(value, prefixedKey, res);\n    } else {\n      res[prefixedKey] = value;\n    }\n  }\n  return res;\n}\n\nreturn $input.first().json.items.map(item => ({\n  json: flatten(item)\n}));"
+      },
+      "id": "78d234b5-be16-4d3b-8731-0d7759b52b0e",
+      "name": "Prepare the list for export",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1168,
+        -752
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "title": "=LinkedIn-Posts-Comments-Leads-{{ $now.format('yyyy-MM-dd+T') }}",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "Leads"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "23adba7c-a7af-4a23-96b2-17223d8422fd",
+      "name": "Create Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -688,
+        -432
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0QPhHWj1ZyZeQ8yP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create Google Sheet').first().json.spreadsheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create Google Sheet').first().json.sheets[0].properties.sheetId }}"
+        },
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "profileUrl",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "profileUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_fullname",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_fullname",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_first_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_first_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_last_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_last_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_headline",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_headline",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_public_identifier",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_public_identifier",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_profile_picture_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_profile_picture_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_about",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_about",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_location_country",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_location_country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_location_city",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_location_city",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_location_full",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_location_full",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_location_country_code",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_location_country_code",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_creator_hashtags",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_creator_hashtags",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_is_creator",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_is_creator",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_is_influencer",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_is_influencer",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_is_premium",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_is_premium",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_created_timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_created_timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_show_follower_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_show_follower_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_background_picture_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_background_picture_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_urn",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_urn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_follower_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_follower_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_connection_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_connection_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_current_company",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_current_company",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_current_company_urn",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_current_company_urn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "basic_info_current_company_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "basic_info_current_company_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "experience",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "education",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "education",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "certifications",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "certifications",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED",
+          "useAppend": true
+        }
+      },
+      "id": "a94397c6-bab3-4771-a372-6d2aa34007e3",
+      "name": "Add Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -272,
+        -432
+      ],
+      "executeOnce": false,
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0QPhHWj1ZyZeQ8yP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn $('Prepare the list for export').all();"
+      },
+      "id": "f9b314da-bc04-4a08-9001-b82230fc8b2e",
+      "name": "Set the list for sheets",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -480,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {},
+      "id": "2114c197-36cf-4e67-ae94-5e78ff19221f",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        448,
+        -720
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Add Leads": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "More runs needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set pagination": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set APIFY Token": {
+      "main": [
+        [
+          {
+            "node": "Run Apify Comments Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in batches": {
+      "main": [
+        [
+          {
+            "node": "Split Out Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger manually": {
+      "main": [
+        [
+          {
+            "node": "Set manual fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "More runs needed?": {
+      "main": [
+        [
+          {
+            "node": "Set pagination",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Unique List of Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Batches": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Comments": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Profiles": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Comments": {
+      "main": [
+        [
+          {
+            "node": "Aggregate All Comments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Apify Comments Scraper Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Profiles": {
+      "main": [
+        [
+          {
+            "node": "Aggregate All Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Apify Profile Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Set fields from the form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Set the list for sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather All Comments": {
+      "main": [
+        [
+          {
+            "node": "Create Unique List of Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate All Comments": {
+      "main": [
+        [
+          {
+            "node": "Gather All Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate All Profiles": {
+      "main": [
+        [
+          {
+            "node": "Prepare the list for export",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the list for sheets": {
+      "main": [
+        [
+          {
+            "node": "Add Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set fields from the form": {
+      "main": [
+        [
+          {
+            "node": "Set APIFY Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Comments Scraper": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Unique List of Leads": {
+      "main": [
+        [
+          {
+            "node": "Split in batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare the list for export": {
+      "main": [
+        [
+          {
+            "node": "Create Google Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Profile Enrichment": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Comments Scraper Loop": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "800c72af-56d4-475e-8dd6-d6009e717d00",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1cf89b43369a41d5cb2ef8f98e40e28eb1e7b9933446d35a3569ea05d3f4880b"
+  },
+  "id": "Zh6oEb6SHHpnPBLr",
+  "tags": []
+}
