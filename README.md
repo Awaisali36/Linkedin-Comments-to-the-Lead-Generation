@@ -9,6 +9,27 @@
 
 Turn every LinkedIn post into a lead generation machine. This intelligent automation identifies engaged prospects from post comments and delivers enriched profiles ready for outreach.
 
+
+
+## 🎬 Demo Video
+
+### See the Full System in Action
+
+<div align="center">
+
+  <a href="https://youtu.be/SNPm8o_b-vo">
+    <img src="https://img.youtube.com/vi/SNPm8o_b-vo/maxresdefault.jpg" alt="Facebook Ad Manager - Complete Demo" width="100%">
+  </a>
+
+  <br><br>
+
+  <a href="https://www.youtube.com/watch?v=Z_zoyLifS1s">
+    <strong>▶️ Watch Full Demo on YouTube (5 minutes)</strong>
+  </a>
+
+</div>
+
+
 ---
 
 ## 📋 Table of Contents
@@ -30,21 +51,6 @@ Turn every LinkedIn post into a lead generation machine. This intelligent automa
 - [License](#-license)
 
 
-## 🎬 Demo Video
-
-### See the Full System in Action
-
-<div align="center">
-  <a href="https://youtu.be/SNPm8o_b-vo">
-    <img src="https://img.https://youtu.be/SNPm8o_b-vo/maxresdefault.jpg" alt="Facebook Ad Manager - Complete Demo" width="100%">
-  </a>
-  <br><br>
-  <a href="https://www.youtube.com/watch?v=Z_zoyLifS1s">
-    <strong>▶️ Watch Full Demo on YouTube (5 minutes)</strong>
-  </a>
-</div>
-
----
 
 ## 🎯 Overview
 
